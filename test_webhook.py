@@ -2,8 +2,9 @@ import requests
 import json
 from datetime import datetime
 
-# Test webhook endpoint
-WEBHOOK_URL = "http://localhost:5000/webhook"
+# Configuration
+WEBHOOK_URL = 'https://web-production-3fc01.up.railway.app/webhook'  # Your webhook endpoint
+SECRET_KEY = ''  # Your Smartlead secret key (if configured)
 
 # Sample EMAIL_SENT webhook
 email_sent_payload = {
@@ -31,7 +32,7 @@ email_sent_payload = {
     },
     "client_id": 111,
     "app_url": "https://app.smartlead.ai/app/master-inbox",
-    "secret_key": "",  # Add your secret key here if configured
+    "secret_key": SECRET_KEY,
     "description": "Test email sent",
     "metadata": {
         "webhook_created_at": datetime.now().isoformat() + "Z"
@@ -72,7 +73,7 @@ email_reply_payload = {
     "reply_category": "positive",
     "client_id": 111,
     "app_url": "https://app.smartlead.ai/app/master-inbox",
-    "secret_key": "",  # Add your secret key here if configured
+    "secret_key": SECRET_KEY,
     "description": "Test reply received",
     "metadata": {
         "webhook_created_at": datetime.now().isoformat() + "Z"

@@ -18,61 +18,6 @@ from datetime import datetime
 from smartlead_bulk_export import SmartleadBulkExporter
 
 
-def export_by_campaign(exporter, campaign_id, dry_run=False):
-    """Export messages for a specific campaign"""
-    print(f"Exporting messages for campaign ID: {campaign_id}")
-    
-    # Get campaign info
-    campaigns = exporter.get_campaigns()
-    campaign = next((c for c in campaigns if c['id'] == campaign_id), None)
-    
-    if not campaign:
-        print(f"Campaign with ID {campaign_id} not found!")
-        return None
-    
-    print(f"Campaign: {campaign['name']}")
-    
-    total_messages = 0
-    successful_uploads = 0
-    failed_uploads = 0
-    
-    # Get all leads in the campaign
-    leads = exporter.get_campaign_leads(campaign_id)
-    print(f"Found {len(leads)} leads")
-    
-    for i, lead in enumerate(leads, 1):
-        lead_id = lead['id']
-        print(f"\n[{i}/{len(leads)}] Processing lead: {lead.get('email', 'Unknown')}")
-        
-        # Get all messages for this lead
-        messages = exporter.get_lead_messages(campaign_id, lead_id)
-        
-        for message in messages:
-            total_messages += 1
-            
-            # Convert to webhook format
-            webhook_data = exporter.convert_smartlead_to_webhook_format(message, campaign, lead)
-            
-            if dry_run:
-                print(f"  Would upload: {webhook_data['event_type']} - {webhook_data['subject'][:50]}...")
-            else:
-                # Process and upload the message
-                result = exporter.process_message(webhook_data)
-                
-                if result['success']:
-                    successful_uploads += 1
-                    print(f"  ✓ {webhook_data['event_type']} - {webhook_data['subject'][:50]}...")
-                else:
-                    failed_uploads += 1
-                    print(f"  ✗ Failed: {result.get('error', 'Unknown error')}")
-    
-    return {
-        'total_messages': total_messages,
-        'successful_uploads': successful_uploads,
-        'failed_uploads': failed_uploads
-    }
-
-
 def list_clients_and_campaigns(exporter):
     """List all available clients and campaigns"""
     print("Fetching all campaigns...")
@@ -100,7 +45,7 @@ def list_clients_and_campaigns(exporter):
     print("=" * 60)
     
     for client_id, client_info in clients.items():
-        print(f"\nClient: {client_info['name']} (ID: {client_id})")
+        print(f"\nClient ID: {client_id}")
         print(f"  Campaigns:")
         for campaign in client_info['campaigns']:
             print(f"    - {campaign['name']} (ID: {campaign['id']}, Status: {campaign['status']})")
@@ -139,7 +84,7 @@ def main():
     
     elif args.campaign_id:
         # Export specific campaign
-        results = export_by_campaign(exporter, args.campaign_id, dry_run=args.dry_run)
+        results = exporter.export_campaign_messages(args.campaign_id, dry_run=args.dry_run)
         
     elif args.client_id:
         # Export specific client
@@ -167,9 +112,9 @@ def main():
         
         # Aggregate results
         results = {
-            'total_messages': sum(r['total_messages'] for r in all_results.values()),
-            'successful_uploads': sum(r['successful_uploads'] for r in all_results.values()),
-            'failed_uploads': sum(r['failed_uploads'] for r in all_results.values()),
+            'total_messages': sum(r['total_messages'] for r in all_results.values() if r),
+            'successful_uploads': sum(r['successful_uploads'] for r in all_results.values() if r),
+            'failed_uploads': sum(r['failed_uploads'] for r in all_results.values() if r),
             'by_client': all_results
         }
     
