@@ -12,6 +12,8 @@ ENV/
 # OAuth tokens
 token.json
 credentials.json
+railway_token_env.txt
+extract_token_for_railway.py
 
 # Environment variables
 .env

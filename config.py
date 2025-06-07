@@ -17,7 +17,7 @@ APP_URL = os.getenv('APP_URL', 'http://localhost:5000')
 REDIRECT_URI = f'{APP_URL}/oauth2callback'
 
 # Webhook Configuration
-WEBHOOK_PORT = int(os.getenv('PORT', 5000))  # Use PORT env var for cloud platforms
+WEBHOOK_PORT = int(os.getenv('PORT', 5001))  # Use PORT env var for cloud platforms
 WEBHOOK_SECRET_KEY = os.getenv('WEBHOOK_SECRET_KEY', '')
 
 # Gmail Labels
